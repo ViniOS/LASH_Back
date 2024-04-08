@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "admin",
+    "database": "lash",
+    "host": "127.0.0.1",
+    "dialect": "postgresql"
+  },
+  "test": {
+    "username": "aluno",
+    "password": "1234",
+    "database": "lash",
+    "host": "127.0.0.1",
+    "dialect": "postgresql"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "admin",
+    "database": "lash",
+    "host": "127.0.0.1",
+    "dialect": "postgresql"
+  }
+}
