@@ -1,6 +1,8 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({
     extended: true
@@ -8,15 +10,17 @@ app.use(express.urlencoded({
 
 
 
-// const authMiddleware = require('./src/middlewares/auth');
-// app.use(authMiddleware.eAdmin);
-
 const pacientes = require('./src/routes/pacientesRoutes');
 app.use('/pacientes', pacientes);
 
 const responsaveis = require('./src/routes/responsaveisRoutes');
 app.use('/responsaveis', responsaveis);
 
+const frequencias = require('./src/routes/frequenciaRoutes');
+app.use('/frequencias', frequencias);
+
+const doencas = require('./src/routes/doencasRoutes');
+app.use('/doencas', doencas);
 
 
 app.listen(3000, ()=>{
