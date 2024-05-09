@@ -3,6 +3,8 @@ const { Op } = require('sequelize');
 
 
 async function findById(req, res) {
+    // #swagger.tags = ['Historico']
+    // #swagger.description = 'Endpoint para buscar historico por ID.'
     try {
         const pacientesArray = await database.historicoDoencas.findAll({
             include: {
@@ -21,6 +23,8 @@ async function findById(req, res) {
 }
 
 async function create(req, res) {
+    // #swagger.tags = ['Historico']
+    // #swagger.description = 'Endpoint para criar novo historico.'
     try {
         const paciente = await database.historicoDoencas.create({
             pacienteId: req.body.pacienteId,
@@ -35,6 +39,9 @@ async function create(req, res) {
 
 
 async function remove(req, res) {
+    // #swagger.tags = ['Historico']
+    // #swagger.description = 'Endpoint para deletar um Historico.'
+
     try {
         const paciente = await database.pacientes.findByPk(req.params.id);
 

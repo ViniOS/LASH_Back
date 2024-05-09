@@ -2,6 +2,10 @@ const database = require('../models');
 const { Op } = require('sequelize');
 
 async function findAll(req, res) {
+
+    // #swagger.tags = ['Frequencia']
+    // #swagger.description = 'Endpoint para pesquisar todas as frequencias.'
+
     try {
         const frequenciaArray = await database.frequencia.findAll({
             include: {
@@ -19,6 +23,8 @@ async function findAll(req, res) {
 }
 
 async function findById(req, res) {
+    // #swagger.tags = ['Frequencia']
+    // #swagger.description = 'Endpoint para pesquisar frequencia por ID.'
     try {
         const paciente = await database.frequencia.findAll(
             {   
@@ -41,6 +47,8 @@ async function findById(req, res) {
 }
 
 async function create(req, res) {
+    // #swagger.tags = ['Frequencia']
+    // #swagger.description = 'Endpoint para criar uma nova frequencia.'
 
     try {
         const frequencia = await database.frequencia.create({
@@ -54,6 +62,9 @@ async function create(req, res) {
 }
 
 async function remove(req, res) {
+    // #swagger.tags = ['Frequencia']
+    // #swagger.description = 'Endpoint para deletar uma frequencia.'
+
     try {
         const frequencia = await database.frequencia.findByPk(req.params.id);
 

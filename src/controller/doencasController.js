@@ -1,6 +1,9 @@
 const database = require('../models');
 
 async function findAll(req, res) {
+
+    // #swagger.tags = ['Doenças']
+    // #swagger.description = 'Endpoints para obter todos as doenças cadastradas.'
     try {
         const doencasArray = await database.doencas.findAll();
         res.status(200).json(doencasArray);
@@ -10,6 +13,9 @@ async function findAll(req, res) {
 }
 
 async function findByName(req, res) {
+    // #swagger.tags = ['Doenças']
+    // #swagger.description = 'Endpoints para obter uma doença pelo nome.'
+
     try {
         const doenca = await database.doencas.findAll(
             {
@@ -25,6 +31,8 @@ async function findByName(req, res) {
 }
 
 async function findByPk(req, res) {
+    // #swagger.tags = ['Doenças']
+    // #swagger.description = 'Endpoints para obter uma doença pelo ID.'
     try {
         const doenca = await database.doencas.findByPk(req.params.id);
         res.status(200).json(doenca);
@@ -34,6 +42,9 @@ async function findByPk(req, res) {
 }
 
 async function create(req, res) {
+    // #swagger.tags = ['Doenças']
+    // #swagger.description = 'Endpoint para criar uma nova doença.'
+
     try {
         const doenca = await database.doencas.create({
             nome: req.body.nome
@@ -47,6 +58,8 @@ async function create(req, res) {
 
 async function alter(req, res) {
 
+    // #swagger.tags = ['Doenças']
+    // #swagger.description = 'Endpoint para alterar uma doença pelo ID.'
     try {
         const verificacao = await database.doencas.update({
             nome: req.body.nome,
@@ -68,6 +81,9 @@ async function alter(req, res) {
 }
 
 async function remove(req, res) {
+    // #swagger.tags = ['Doenças']
+    // #swagger.description = 'Endpoint para remover uma doença.'
+
     try {
         const doenca = await database.doencas.findByPk(req.params.id);
 

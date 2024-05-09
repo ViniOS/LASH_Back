@@ -2,6 +2,10 @@ const database = require('../models');
 const { Op, where } = require('sequelize');
 
 async function findAll(req, res) {
+
+    // #swagger.tags = ['Paciente']
+    // #swagger.description = 'Endpoint para pesquisar todos os pacientes.'
+
     try {
         const pacientesArray = await database.pacientes.findAll({
             include: {
@@ -19,6 +23,8 @@ async function findAll(req, res) {
 }
 
 async function findByName(req, res) {
+    // #swagger.tags = ['Paciente']
+    // #swagger.description = 'Endpoint para pesquisar um paciente por nome.'
     try {
         const paciente = await database.pacientes.findAll(
             {   
@@ -41,6 +47,10 @@ async function findByName(req, res) {
 }
 
 async function findByPk(req, res) {
+
+    // #swagger.tags = ['Paciente']
+    // #swagger.description = 'Endpoint para pesquisar um paciente por ID.'
+
     try {
         const paciente = await database.pacientes.findByPk(req.params.id);
         res.status(200).json(paciente);
@@ -51,6 +61,8 @@ async function findByPk(req, res) {
 
 
 async function create(req, res) {
+    // #swagger.tags = ['Paciente']
+    // #swagger.description = 'Endpoint para criar um novo paciente.'
 
     try {
         var verificacao = await database.pacientes.findAll({
@@ -84,6 +96,9 @@ async function create(req, res) {
 
 async function alter(req, res) {
 
+    // #swagger.tags = ['Paciente']
+    // #swagger.description = 'Endpoint alterar os dado do paciente por ID.'
+
     try {
         const verificacao = await database.pacientes.update({
             nome: req.body.nome,
@@ -110,6 +125,10 @@ async function alter(req, res) {
 }
 
 async function remove(req, res) {
+
+    // #swagger.tags = ['Paciente']
+    // #swagger.description = 'Endpoint para remover um paciente por ID.'
+
     try {
         let verify = null;
 

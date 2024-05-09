@@ -2,6 +2,9 @@ const database = require('../models');
 const { Op } = require('sequelize');
 
 async function findAll(req, res) {
+
+    // #swagger.tags = ['Responsavel']
+    // #swagger.description = 'Endpoint para pesquisar todos os responsaveis.'
     try {
         const responsaveisArray = await database.responsaveis.findAll({
             include: {
@@ -19,6 +22,10 @@ async function findAll(req, res) {
 }
 
 async function findByName(req, res) {
+
+    // #swagger.tags = ['Responsavel']
+    // #swagger.description = 'Endpoint para pesquisar um responsavel por nome.'
+
     try {
         const responsavel = await database.responsaveis.findAll(
             {   
@@ -40,6 +47,10 @@ async function findByName(req, res) {
 }
 
 async function findByPk(req, res) {
+
+    // #swagger.tags = ['Responsavel']
+    // #swagger.description = 'Endpoint para pesquisar um responsavel por ID.'
+
     try {
         const doenca = await database.responsaveis.findByPk(req.params.id);
         res.status(200).json(doenca);
@@ -49,6 +60,9 @@ async function findByPk(req, res) {
 }
 
 async function create(req, res) {
+
+    // #swagger.tags = ['Responsavel']
+    // #swagger.description = 'Endpoint para criar um responsavel.'
 
     try {
         var verificacao = await database.responsaveis.findAll({
@@ -81,6 +95,9 @@ async function create(req, res) {
 
 async function alter(req, res) {
 
+    // #swagger.tags = ['Responsavel']
+    // #swagger.description = 'Endpoint para alterar um responsavel por ID.'
+
     try {
         const verificacao = await database.responsaveis.update({
             nome: req.body.nome,
@@ -105,6 +122,10 @@ async function alter(req, res) {
 }
 
 async function remove(req, res) {
+
+    // #swagger.tags = ['Responsavel']
+    // #swagger.description = 'Endpoint para remover um responsavel por ID.'
+
     try {
         const responsavel = await database.responsaveis.findByPk(req.params.id);
 

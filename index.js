@@ -1,13 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const swaggerUi = require('swagger-ui-express')
+const swaggerFile = require('./swagger_output.json')
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({
     extended: true
 }));
-
 
 
 const pacientes = require('./src/routes/pacientesRoutes');
@@ -21,6 +22,8 @@ app.use('/frequencias', frequencias);
 
 const doencas = require('./src/routes/doencasRoutes');
 app.use('/doencas', doencas);
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
 
 app.listen(3000, ()=>{
