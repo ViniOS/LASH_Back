@@ -10,6 +10,8 @@ app.use(express.urlencoded({
     extended: true
 }));
 
+const usuarios = require('./src/routes/usuarioRoutes');
+app.use('/', usuarios);
 
 const pacientes = require('./src/routes/pacientesRoutes');
 app.use('/pacientes', pacientes);
