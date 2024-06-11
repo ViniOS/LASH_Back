@@ -77,7 +77,11 @@ async function create(req, res) {
                     nome: req.body.nome,
                     sobrenome: req.body.sobrenome,
                     cpf: req.body.cpf,
+                    cidade: req.body.cidade,
+                    bairro: req.body.bairro,
                     endereco: req.body.endereco,
+                    uf:req.body.uf,
+                    numero: req.body.numero,                             
                     doenca: req.body.doenca,
                     dataNascimento: req.body.dataNascimento
                 });
@@ -102,11 +106,15 @@ async function alter(req, res) {
     try {
         const verificacao = await database.pacientes.update({
             nome: req.body.nome,
-            sobrenome: req.body.sobrenome,
-            cpf: req.body.cpf,
-            endereco: req.body.endereco,
-            doenca: req.body.doenca,
-            dataNascimento: req.body.dataNascimento
+                    sobrenome: req.body.sobrenome,
+                    cpf: req.body.cpf,
+                    cidade: req.body.cidade,
+                    bairro: req.body.bairro,
+                    endereco: req.body.endereco,
+                    uf:req.body.uf,
+                    numero: req.body.numero,                             
+                    doenca: req.body.doenca,
+                    dataNascimento: req.body.dataNascimento
         },{
             where: {
                 id: req.params.id

@@ -77,9 +77,14 @@ async function create(req, res) {
                     nome: req.body.nome,
                     sobrenome: req.body.sobrenome,
                     cpf: req.body.cpf,
-                    rg: req.body.rg,
-                    pacienteId: req.body.pacienteId
-                });
+                    cidade: req.body.cidade,
+                    pacienteId: req.body.pacienteId,
+                    bairro: req.body.bairro,
+                    endereco: req.body.endereco,
+                    uf:req.body.uf,
+                    numero: req.body.numero,         
+
+              });
                 
                 res.status(200).json(responsavel);
             } catch(err) {

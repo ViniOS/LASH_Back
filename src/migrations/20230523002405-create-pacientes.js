@@ -21,6 +21,22 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      uf: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      bairro: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      cidade: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      numero: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       endereco: {
         type: Sequelize.STRING,
         allowNull: false
