@@ -21,7 +21,13 @@ module.exports = (sequelize, DataTypes) => {
     sobrenome: DataTypes.STRING,
     cpf: DataTypes.STRING,
     rg: DataTypes.STRING,
-    pacienteId: DataTypes.INTEGER
+    pacienteId: DataTypes.INTEGER,
+    cidade: DataTypes.STRING,
+    endereco: DataTypes.STRING,
+    numero: DataTypes.STRING,
+    uf: DataTypes.STRING,
+    cep: DataTypes.STRING,
+    bairro: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'responsaveis',

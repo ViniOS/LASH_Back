@@ -30,7 +30,13 @@ module.exports = (sequelize, DataTypes) => {
     cpf: DataTypes.STRING,
     endereco: DataTypes.STRING,
     doenca: DataTypes.STRING,
-    dataNascimento: DataTypes.DATEONLY
+    dataNascimento: DataTypes.DATEONLY,
+    cidade: DataTypes.STRING,
+    endereco: DataTypes.STRING,
+    numero: DataTypes.STRING,
+    uf: DataTypes.STRING,
+    cep: DataTypes.STRING,
+    bairro: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'pacientes',
