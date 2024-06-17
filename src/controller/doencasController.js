@@ -1,14 +1,13 @@
 const database = require('../models');
 
 async function findAll(req, res) {
-
-    // #swagger.tags = ['Doenças']
-    // #swagger.description = 'Endpoints para obter todos as doenças cadastradas.'
     try {
-        const doencasArray = await database.doencas.findAll();
+        const doencasArray = await database.doencas.findAll({
+            attributes: ['id', 'nome'] // Seleciona apenas os atributos necessários
+        });
         res.status(200).json(doencasArray);
     } catch(err) {
-        res.status(500).json({mensagem:' Erro ao buscar doenças', erro: err.message});
+        res.status(500).json({ mensagem: 'Erro ao buscar doenças', erro: err.message });
     }
 }
 

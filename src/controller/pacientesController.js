@@ -1,10 +1,13 @@
 const database = require("../models");
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
+
+// Função para converter data de dd/mm/yyyy para yyyy-mm-dd
+const formatarData = (date) => {
+  const [dia, mes, ano] = date.split("/");
+  return `${ano}-${mes}-${dia}`;
+};
 
 async function findAll(req, res) {
-  // #swagger.tags = ['Paciente']
-  // #swagger.description = 'Endpoint para pesquisar todos os pacientes.'
-
   try {
     const pacientesArray = await database.pacientes.findAll({
       include: {
@@ -17,15 +20,11 @@ async function findAll(req, res) {
     });
     res.status(200).json(pacientesArray);
   } catch (err) {
-    res
-      .status(500)
-      .json({ mensagem: " Erro ao buscar pacientes", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar pacientes", erro: err.message });
   }
 }
 
 async function findByName(req, res) {
-  // #swagger.tags = ['Paciente']
-  // #swagger.description = 'Endpoint para pesquisar um paciente por nome.'
   try {
     const paciente = await database.pacientes.findAll({
       include: {
@@ -41,32 +40,22 @@ async function findByName(req, res) {
     });
     res.status(200).json(paciente);
   } catch (err) {
-    res
-      .status(500)
-      .json({ mensagem: " Erro ao buscar paciente", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
   }
 }
 
 async function findByPk(req, res) {
-  // #swagger.tags = ['Paciente']
-  // #swagger.description = 'Endpoint para pesquisar um paciente por ID.'
-
   try {
     const paciente = await database.pacientes.findByPk(req.params.id);
     res.status(200).json(paciente);
   } catch (err) {
-    res
-      .status(500)
-      .json({ mensagem: " Erro ao buscar paciente", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
   }
 }
 
 async function create(req, res) {
-  // #swagger.tags = ['Paciente']
-  // #swagger.description = 'Endpoint para criar um novo paciente.'
-
   try {
-    var verificacao = await database.pacientes.findAll({
+    const verificacao = await database.pacientes.findAll({
       where: {
         cpf: req.body.cpf,
       },
@@ -80,7 +69,7 @@ async function create(req, res) {
           cpf: req.body.cpf,
           endereco: req.body.endereco,
           doenca: req.body.doenca,
-          dataNascimento: req.body.dataNascimento,
+          dataNascimento: formatarData(req.body.dataNascimento), // Conversão da data
           cidade: req.body.cidade,
           numero: req.body.numero,
           uf: req.body.uf,
@@ -90,24 +79,17 @@ async function create(req, res) {
 
         res.status(200).json(paciente);
       } catch (err) {
-        res
-          .status(500)
-          .json({ mensagem: " Erro ao criar paciente", erro: err.message });
+        res.status(500).json({ mensagem: "Erro ao criar paciente", erro: err.message });
       }
     } else {
-      res.status(500).json({ mensagem: " Paciente existente" });
+      res.status(500).json({ mensagem: "Paciente existente" });
     }
   } catch (err) {
-    res
-      .status(500)
-      .json({ mensagem: " Erro ao buscar paciente", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
   }
 }
 
 async function alter(req, res) {
-  // #swagger.tags = ['Paciente']
-  // #swagger.description = 'Endpoint alterar os dado do paciente por ID.'
-
   try {
     const verificacao = await database.pacientes.update(
       {
@@ -116,7 +98,7 @@ async function alter(req, res) {
         cpf: req.body.cpf,
         endereco: req.body.endereco,
         doenca: req.body.doenca,
-        dataNascimento: req.body.dataNascimento,
+        dataNascimento: formatDate(req.body.dataNascimento), // Conversão da data
         cidade: req.body.cidade,
         numero: req.body.numero,
         uf: req.body.uf,
@@ -137,16 +119,11 @@ async function alter(req, res) {
       res.status(200).json({ mensagem: "Paciente inexistente" });
     }
   } catch (err) {
-    res
-      .status(500)
-      .json({ mensagem: " Erro ao buscar paciente", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
   }
 }
 
 async function remove(req, res) {
-  // #swagger.tags = ['Paciente']
-  // #swagger.description = 'Endpoint para remover um paciente por ID.'
-
   try {
     let verify = null;
 
@@ -179,21 +156,12 @@ async function remove(req, res) {
 
       let nomePaciente = paciente.nome;
       paciente.destroy();
-      res
-        .status(200)
-        .json({ mensagem: `${nomePaciente} excluído com sucesso`, ok: true });
+      res.status(200).json({ mensagem: `${nomePaciente} excluído com sucesso`, ok: true });
     } else {
-      res
-        .status(200)
-        .json({
-          mensagem: `Paciente não pode ser exluído no momento`,
-          ok: false,
-        });
+      res.status(200).json({ mensagem: `Paciente não pode ser exluído no momento`, ok: false });
     }
   } catch (err) {
-    res
-      .status(500)
-      .json({ mensagem: " Erro ao buscar paciente", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
   }
 }
 
