@@ -7,13 +7,12 @@ const formatarData = (date) => {
 };
 
 async function findAll(req, res) {
-  // #swagger.tags = ['Responsavel']
-  // #swagger.description = 'Endpoint para pesquisar todos os responsaveis.'
   try {
     const responsaveisArray = await database.responsaveis.findAll({
       include: {
         model: database.pacientes,
         as: "paciente",
+        attributes: ['nome', 'sobrenome'], // Inclui apenas os atributos necessários
         on: {
           "$responsaveis.pacienteId$": { [Op.col]: "paciente.id" },
         },
@@ -21,21 +20,18 @@ async function findAll(req, res) {
     });
     res.status(200).json(responsaveisArray);
   } catch (err) {
-    res
-      .status(500)
-      .json({ mensagem: " Erro ao buscar responsáveis", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar responsáveis", erro: err.message });
   }
 }
 
-async function findByName(req, res) {
-  // #swagger.tags = ['Responsavel']
-  // #swagger.description = 'Endpoint para pesquisar um responsavel por nome.'
 
+async function findByName(req, res) {
   try {
     const responsavel = await database.responsaveis.findAll({
       include: {
         model: database.pacientes,
         as: "paciente",
+        attributes: ['nome', 'sobrenome'], // Inclui apenas os atributos necessários
         on: {
           "$responsaveis.pacienteId$": { [Op.col]: "paciente.id" },
         },
@@ -46,25 +42,29 @@ async function findByName(req, res) {
     });
     res.status(200).json(responsavel);
   } catch (err) {
-    res
-      .status(500)
-      .json({ mensagem: " Erro ao buscar responsável", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar responsável", erro: err.message });
   }
 }
+
 
 async function findByPk(req, res) {
-  // #swagger.tags = ['Responsavel']
-  // #swagger.description = 'Endpoint para pesquisar um responsavel por ID.'
-
   try {
-    const doenca = await database.responsaveis.findByPk(req.params.id);
-    res.status(200).json(doenca);
+    const responsavel = await database.responsaveis.findByPk(req.params.id, {
+      include: {
+        model: database.pacientes,
+        as: "paciente",
+        attributes: ['nome', 'sobrenome'], // Inclui apenas os atributos necessários
+        on: {
+          "$responsaveis.pacienteId$": { [Op.col]: "paciente.id" },
+        },
+      },
+    });
+    res.status(200).json(responsavel);
   } catch (err) {
-    res
-      .status(500)
-      .json({ mensagem: " Erro ao buscar doenças", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar responsável", erro: err.message });
   }
 }
+
 
 async function create(req, res) {
     // #swagger.tags = ['Responsavel']
