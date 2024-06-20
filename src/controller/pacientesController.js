@@ -17,30 +17,6 @@ const extrairToken = (req) => {
   return null; // Retorna null se não houver token no cabeçalho
 };
 
-/**
- * @swagger
- * tags:
- *   name: Frequencia
- *   description: Endpoints para operações relacionadas a frequências.
- */
-
-/**
- * @swagger
- * /findAll:
- *   get:
- *     summary: Retorna todas as frequências com seus pacientes relacionados.
- *     tags: [Frequencia]
- *     description: Retorna um array com todas as frequências e seus respectivos pacientes.
- *     responses:
- *       200:
- *         description: Array contendo todas as frequências com os pacientes relacionados.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- */
 async function findAll(req, res) {
   try {
     const token = extrairToken(req); // Extrai o token do cabeçalho Authorization
@@ -51,12 +27,12 @@ async function findAll(req, res) {
     // Verifica e decodifica o token
     const payload = jwt.verify(token, process.env.PG_SECRET);
 
-    const pacientesArray = await database.frequencia.findAll({
+    const pacientesArray = await database.pacientes.findAll({
       include: {
-        model: database.pacientes,
-        as: "paciente",
+        model: database.responsaveis,
+        as: "responsavel",
         on: {
-          "$frequencia.pacienteId$": { [Op.col]: "paciente.id" },
+          "$pacientes.id$": { [Op.col]: "responsavel.pacienteId" },
         },
       },
     });
@@ -66,29 +42,7 @@ async function findAll(req, res) {
   }
 }
 
-/**
- * @swagger
- * /findById/{id}:
- *   get:
- *     summary: Retorna uma frequência pelo ID com seu paciente relacionado.
- *     tags: [Frequencia]
- *     description: Retorna a frequência com o paciente correspondente ao ID fornecido.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID da frequência a ser buscada.
- *     responses:
- *       200:
- *         description: Objeto contendo a frequência com o paciente relacionado.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- */
-async function findById(req, res) {
+async function findByName(req, res) {
   try {
     const token = extrairToken(req); // Extrai o token do cabeçalho Authorization
     if (!token) {
@@ -98,16 +52,16 @@ async function findById(req, res) {
     // Verifica e decodifica o token
     const payload = jwt.verify(token, process.env.PG_SECRET);
 
-    const paciente = await database.frequencia.findAll({
+    const paciente = await database.pacientes.findAll({
       include: {
-        model: database.pacientes,
-        as: "paciente",
+        model: database.responsaveis,
+        as: "responsavel",
         on: {
-          "$frequencia.pacienteId$": { [Op.col]: "paciente.id" },
+          "$pacientes.id$": { [Op.col]: "responsavel.pacienteId" },
         },
       },
       where: {
-        pacienteId: req.params.id,
+        nome: req.params.nome,
       },
     });
     res.status(200).json(paciente);
@@ -116,33 +70,23 @@ async function findById(req, res) {
   }
 }
 
-/**
- * @swagger
- * /create:
- *   post:
- *     summary: Cria uma nova frequência associada a um paciente.
- *     tags: [Frequencia]
- *     description: Cria uma nova frequência para o paciente especificado no corpo da requisição.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               pacienteId:
- *                 type: integer
- *                 description: ID do paciente associado à frequência.
- *             required:
- *               - pacienteId
- *     responses:
- *       200:
- *         description: Objeto contendo a frequência recém-criada.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- */
+async function findByPk(req, res) {
+  try {
+    const token = extrairToken(req); // Extrai o token do cabeçalho Authorization
+    if (!token) {
+      return res.status(401).json({ mensagem: "Token não fornecido" });
+    }
+
+    // Verifica e decodifica o token
+    const payload = jwt.verify(token, process.env.PG_SECRET);
+
+    const paciente = await database.pacientes.findByPk(req.params.id);
+    res.status(200).json(paciente);
+  } catch (err) {
+    res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
+  }
+}
+
 async function create(req, res) {
   try {
     const token = extrairToken(req); // Extrai o token do cabeçalho Authorization
@@ -153,38 +97,82 @@ async function create(req, res) {
     // Verifica e decodifica o token
     const payload = jwt.verify(token, process.env.PG_SECRET);
 
-    const frequencia = await database.frequencia.create({
-      pacienteId: req.body.pacienteId,
+    const verificacao = await database.pacientes.findAll({
+      where: {
+        cpf: req.body.cpf,
+      },
     });
-    
-    res.status(200).json(frequencia);
+
+    if (verificacao.length === 0) {
+      try {
+        const paciente = await database.pacientes.create({
+          nome: req.body.nome,
+          sobrenome: req.body.sobrenome,
+          cpf: req.body.cpf,
+          endereco: req.body.endereco,
+          doenca: req.body.doenca,
+          dataNascimento: formatarData(req.body.dataNascimento), // Conversão da data
+          cidade: req.body.cidade,
+          numero: req.body.numero,
+          uf: req.body.uf,
+          cep: req.body.cep,
+          bairro: req.body.bairro,
+        });
+
+        res.status(200).json(paciente);
+      } catch (err) {
+        res.status(500).json({ mensagem: "Erro ao criar paciente", erro: err.message });
+      }
+    } else {
+      res.status(500).json({ mensagem: "Paciente existente" });
+    }
   } catch (err) {
-    res.status(500).json({ mensagem: "Erro ao criar frequência", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
   }
 }
 
-/**
- * @swagger
- * /remove/{id}:
- *   delete:
- *     summary: Remove uma frequência pelo ID.
- *     tags: [Frequencia]
- *     description: Remove a frequência com o ID especificado.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID da frequência a ser removida.
- *     responses:
- *       200:
- *         description: Mensagem de sucesso ao excluir a frequência.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- */
+async function alter(req, res) {
+  try {
+    const token = extrairToken(req); // Extrai o token do cabeçalho Authorization
+    if (!token) {
+      return res.status(401).json({ mensagem: "Token não fornecido" });
+    }
+
+    // Verifica e decodifica o token
+    const payload = jwt.verify(token, process.env.PG_SECRET);
+
+    const verificacao = await database.pacientes.update(
+      {
+        nome: req.body.nome,
+        sobrenome: req.body.sobrenome,
+        cpf: req.body.cpf,
+        endereco: req.body.endereco,
+        doenca: req.body.doenca,
+        dataNascimento: formatarData(req.body.dataNascimento), // Conversão da data
+        cidade: req.body.cidade,
+        numero: req.body.numero,
+        uf: req.body.uf,
+        cep: req.body.cep,
+        bairro: req.body.bairro,
+      },
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+
+    if (verificacao > 0) {
+      const paciente = await database.pacientes.findByPk(req.params.id);
+      res.status(200).json(paciente);
+    } else {
+      res.status(200).json({ mensagem: "Paciente inexistente" });
+    }
+  } catch (err) {
+    res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
+  }
+}
+
 async function remove(req, res) {
   try {
     const token = extrairToken(req); // Extrai o token do cabeçalho Authorization
@@ -195,18 +183,51 @@ async function remove(req, res) {
     // Verifica e decodifica o token
     const payload = jwt.verify(token, process.env.PG_SECRET);
 
-    const frequencia = await database.frequencia.findByPk(req.params.id);
+    let verify = null;
 
-    frequencia.destroy();  
-    res.status(200).json({ mensagem: `Frequência excluída com sucesso`, ok: true }); 
+    if (verify == null) {
+      verify = await database.responsaveis.findAll({
+        where: {
+          pacienteId: req.params.id,
+        },
+      });
+    }
+
+    if (verify.length === 0) {
+      verify = await database.frequencia.findAll({
+        where: {
+          pacienteId: req.params.id,
+        },
+      });
+    }
+
+    if (verify.length === 0) {
+      verify = await database.historicoDoencas.findAll({
+        where: {
+          pacienteId: req.params.id,
+        },
+      });
+    }
+
+    if (verify.length === 0) {
+      const paciente = await database.pacientes.findByPk(req.params.id);
+
+      let nomePaciente = paciente.nome;
+      paciente.destroy();
+      res.status(200).json({ mensagem: `${nomePaciente} excluído com sucesso`, ok: true });
+    } else {
+      res.status(200).json({ mensagem: `Paciente não pode ser exluído no momento`, ok: false });
+    }
   } catch (err) {
-    res.status(500).json({ mensagem: "Erro ao buscar frequência", erro: err.message });
+    res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
   }
 }
 
 module.exports = {
   findAll,
-  findById,
+  findByName,
+  findByPk,
   create,
+  alter,
   remove,
 };
