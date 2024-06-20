@@ -6,6 +6,26 @@ const formatarData = (date) => {
   return `${ano}-${mes}-${dia}`;
 };
 
+/**
+ * @swagger
+ * tags:
+ *   name: Responsavel
+ *   description: Endpoints para gerenciar responsáveis.
+ */
+
+/**
+ * @swagger
+ * /responsaveis:
+ *   get:
+ *     summary: Retorna todos os responsáveis.
+ *     tags: [Responsavel]
+ *     description: Endpoint para buscar todos os responsáveis cadastrados.
+ *     responses:
+ *       200:
+ *         description: Array de objetos responsável.
+ *       500:
+ *         description: Erro ao buscar responsáveis.
+ */
 async function findAll(req, res) {
   try {
     const responsaveisArray = await database.responsaveis.findAll({
@@ -24,7 +44,26 @@ async function findAll(req, res) {
   }
 }
 
-
+/**
+ * @swagger
+ * /responsaveis/{nome}:
+ *   get:
+ *     summary: Retorna um responsável pelo nome.
+ *     tags: [Responsavel]
+ *     description: Endpoint para buscar um responsável pelo nome.
+ *     parameters:
+ *       - in: path
+ *         name: nome
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Nome do responsável a ser buscado.
+ *     responses:
+ *       200:
+ *         description: Objeto responsável encontrado.
+ *       500:
+ *         description: Erro ao buscar responsável.
+ */
 async function findByName(req, res) {
   try {
     const responsavel = await database.responsaveis.findAll({
@@ -46,7 +85,26 @@ async function findByName(req, res) {
   }
 }
 
-
+/**
+ * @swagger
+ * /responsaveis/{id}:
+ *   get:
+ *     summary: Retorna um responsável pelo ID.
+ *     tags: [Responsavel]
+ *     description: Endpoint para buscar um responsável pelo ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do responsável a ser buscado.
+ *     responses:
+ *       200:
+ *         description: Objeto responsável encontrado.
+ *       500:
+ *         description: Erro ao buscar responsável.
+ */
 async function findByPk(req, res) {
   try {
     const responsavel = await database.responsaveis.findByPk(req.params.id, {
@@ -65,63 +123,61 @@ async function findByPk(req, res) {
   }
 }
 
-
+/**
+ * @swagger
+ * /responsaveis:
+ *   post:
+ *     summary: Cria um novo responsável.
+ *     tags: [Responsavel]
+ *     description: Endpoint para criar um novo responsável.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *               sobrenome:
+ *                 type: string
+ *               cpf:
+ *                 type: string
+ *               rg:
+ *                 type: string
+ *               cidade:
+ *                 type: string
+ *               endereco:
+ *                 type: string
+ *               numero:
+ *                 type: string
+ *               uf:
+ *                 type: string
+ *               cep:
+ *                 type: string
+ *               bairro:
+ *                 type: string
+ *               pacienteId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Objeto responsável criado.
+ *       400:
+ *         description: Responsável já existe.
+ *       500:
+ *         description: Erro ao criar responsável.
+ */
 async function create(req, res) {
-    // #swagger.tags = ['Responsavel']
-    // #swagger.description = 'Endpoint para criar um responsavel.'
-  
-    try {
-      var verificacao = await database.responsaveis.findAll({
-        where: {
-          cpf: req.body.cpf,
-        },
-      });
-  
-      if (verificacao.length === 0) {
-        try {
-          const responsavel = await database.responsaveis.create({
-            nome: req.body.nome,
-            sobrenome: req.body.sobrenome,
-            cpf: req.body.cpf,
-            rg: req.body.rg,
-            cidade: req.body.cidade,
-            endereco: req.body.endereco,
-            numero: req.body.numero,
-            uf: req.body.uf,
-            cep: req.body.cep,
-            bairro: req.body.bairro,
-            pacienteId: req.body.pacienteId
-          });
-  
-          res.status(200).json(responsavel);
-        } catch (err) {
-          res.status(500).json({ mensagem: "Erro ao criar responsável", erro: err.message });
-        }
-      } else {
-        res.status(400).json({ mensagem: "Responsável existente" });
-      }
-    } catch (err) {
-      res.status(500).json({ mensagem: "Erro ao buscar responsável", erro: err.message });
-    }
-  }
+  try {
+    var verificacao = await database.responsaveis.findAll({
+      where: {
+        cpf: req.body.cpf,
+      },
+    });
 
-  async function alter(req, res) {
-    try {
-      const paciente = await database.pacientes.findOne({
-        where: {
-          [Op.and]: [
-            { nome: req.body.pacienteNome.split(' ')[0] },
-            { sobrenome: req.body.pacienteNome.split(' ').slice(1).join(' ') }
-          ]
-        },
-      });
-  
-      if (!paciente) {
-        return res.status(400).json({ mensagem: "Paciente não encontrado" });
-      }
-  
-      const verificacao = await database.responsaveis.update(
-        {
+    if (verificacao.length === 0) {
+      try {
+        const responsavel = await database.responsaveis.create({
           nome: req.body.nome,
           sobrenome: req.body.sobrenome,
           cpf: req.body.cpf,
@@ -132,30 +188,140 @@ async function create(req, res) {
           uf: req.body.uf,
           cep: req.body.cep,
           bairro: req.body.bairro,
-          pacienteId: paciente.id,
-        },
-        {
-          where: {
-            id: req.params.id,
-          },
-        }
-      );
-  
-      if (verificacao > 0) {
-        const responsavel = await database.responsaveis.findByPk(req.params.id);
+          pacienteId: req.body.pacienteId,
+        });
+
         res.status(200).json(responsavel);
-      } else {
-        res.status(200).json({ mensagem: "Responsável inexistente" });
+      } catch (err) {
+        res.status(500).json({ mensagem: "Erro ao criar responsável", erro: err.message });
       }
-    } catch (err) {
-      res.status(500).json({ mensagem: "Erro ao buscar responsável", erro: err.message });
+    } else {
+      res.status(400).json({ mensagem: "Responsável existente" });
     }
+  } catch (err) {
+    res.status(500).json({ mensagem: "Erro ao buscar responsável", erro: err.message });
   }
+}
 
+/**
+ * @swagger
+ * /responsaveis/{id}:
+ *   put:
+ *     summary: Atualiza um responsável pelo ID.
+ *     tags: [Responsavel]
+ *     description: Endpoint para atualizar um responsável pelo ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do responsável a ser atualizado.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *               sobrenome:
+ *                 type: string
+ *               cpf:
+ *                 type: string
+ *               rg:
+ *                 type: string
+ *               cidade:
+ *                 type: string
+ *               endereco:
+ *                 type: string
+ *               numero:
+ *                 type: string
+ *               uf:
+ *                 type: string
+ *               cep:
+ *                 type: string
+ *               bairro:
+ *                 type: string
+ *               pacienteId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Objeto responsável atualizado.
+ *       400:
+ *         description: Responsável não encontrado.
+ *       500:
+ *         description: Erro ao atualizar responsável.
+ */
+async function alter(req, res) {
+  try {
+    const paciente = await database.pacientes.findOne({
+      where: {
+        [Op.and]: [
+          { nome: req.body.pacienteNome.split(' ')[0] },
+          { sobrenome: req.body.pacienteNome.split(' ').slice(1).join(' ') }
+        ]
+      },
+    });
+
+    if (!paciente) {
+      return res.status(400).json({ mensagem: "Paciente não encontrado" });
+    }
+
+    const verificacao = await database.responsaveis.update(
+      {
+        nome: req.body.nome,
+        sobrenome: req.body.sobrenome,
+        cpf: req.body.cpf,
+        rg: req.body.rg,
+        cidade: req.body.cidade,
+        endereco: req.body.endereco,
+        numero: req.body.numero,
+        uf: req.body.uf,
+        cep: req.body.cep,
+        bairro: req.body.bairro,
+        pacienteId: paciente.id,
+      },
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+
+    if (verificacao > 0) {
+      const responsavel = await database.responsaveis.findByPk(req.params.id);
+      res.status(200).json(responsavel);
+    } else {
+      res.status(400).json({ mensagem: "Responsável inexistente" });
+    }
+  } catch (err) {
+    res.status(500).json({ mensagem: "Erro ao buscar responsável", erro: err.message });
+  }
+}
+
+/**
+ * @swagger
+ * /responsaveis/{id}:
+ *   delete:
+ *     summary: Remove um responsável pelo ID.
+ *     tags: [Responsavel]
+ *     description: Endpoint para remover um responsável pelo ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do responsável a ser removido.
+ *     responses:
+ *       200:
+ *         description: Mensagem de sucesso.
+ *       500:
+ *         description: Erro ao buscar responsável.
+ */
 async function remove(req, res) {
-  // #swagger.tags = ['Responsavel']
-  // #swagger.description = 'Endpoint para remover um responsavel por ID.'
-
   try {
     const responsavel = await database.responsaveis.findByPk(req.params.id);
 
@@ -167,7 +333,7 @@ async function remove(req, res) {
   } catch (err) {
     res
       .status(500)
-      .json({ mensagem: " Erro ao buscar responsável", erro: err.message });
+      .json({ mensagem: "Erro ao buscar responsável", erro: err.message });
   }
 }
 

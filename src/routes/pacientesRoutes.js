@@ -1,17 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controller/pacientesController');
+const { eAdmin } = require('../middlewares/auth'); // Importando o middleware de autenticação
 
-router.get('/', controller.findAll);
+// Exemplo de proteção de rotas usando middleware eAdmin
+router.get('/', eAdmin, controller.findAll);
 
-router.get('/:nome', controller.findByName);
+router.get('/:nome', eAdmin, controller.findByName);
 
-router.get('/id/:id', controller.findByPk);
+router.get('/id/:id', eAdmin, controller.findByPk);
 
-router.post('/', controller.create);
+router.post('/', eAdmin, controller.create);
 
-router.put('/:id', controller.alter);
+router.put('/:id', eAdmin, controller.alter);
 
-router.delete('/:id', controller.remove);
+router.delete('/:id', eAdmin, controller.remove);
 
 module.exports = router;
