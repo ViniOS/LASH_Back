@@ -1,9 +1,10 @@
 const database = require("../models");
 const { Op } = require("sequelize");
+const { format } = require('date-fns');
 
-const formatarData = (date) => {
-  const [dia, mes, ano] = date.split("/");
-  return `${ano}-${mes}-${dia}`;
+// Função para converter data de yyyy-MM-dd para dd/MM/yyyy
+const formatarDataParaResposta = (data) => {
+  return format(new Date(data), 'dd/MM/yyyy');
 };
 
 /**
@@ -38,7 +39,14 @@ async function findAll(req, res) {
         },
       },
     });
-    res.status(200).json(responsaveisArray);
+
+    const responsaveisFormatados = responsaveisArray.map(responsavel => ({
+      ...responsavel.toJSON(),
+      createdAt: formatarDataParaResposta(responsavel.createdAt),
+      updatedAt: formatarDataParaResposta(responsavel.updatedAt),
+    }));
+
+    res.status(200).json(responsaveisFormatados);
   } catch (err) {
     res.status(500).json({ mensagem: "Erro ao buscar responsáveis", erro: err.message });
   }
@@ -79,7 +87,14 @@ async function findByName(req, res) {
         nome: req.params.nome,
       },
     });
-    res.status(200).json(responsavel);
+
+    const responsavelFormatado = responsavel.map(r => ({
+      ...r.toJSON(),
+      createdAt: formatarDataParaResposta(r.createdAt),
+      updatedAt: formatarDataParaResposta(r.updatedAt),
+    }));
+
+    res.status(200).json(responsavelFormatado);
   } catch (err) {
     res.status(500).json({ mensagem: "Erro ao buscar responsável", erro: err.message });
   }
@@ -117,7 +132,14 @@ async function findByPk(req, res) {
         },
       },
     });
-    res.status(200).json(responsavel);
+
+    const responsavelFormatado = {
+      ...responsavel.toJSON(),
+      createdAt: formatarDataParaResposta(responsavel.createdAt),
+      updatedAt: formatarDataParaResposta(responsavel.updatedAt),
+    };
+
+    res.status(200).json(responsavelFormatado);
   } catch (err) {
     res.status(500).json({ mensagem: "Erro ao buscar responsável", erro: err.message });
   }
@@ -292,7 +314,12 @@ async function alter(req, res) {
 
     if (verificacao > 0) {
       const responsavel = await database.responsaveis.findByPk(req.params.id);
-      res.status(200).json(responsavel);
+      const responsavelFormatado = {
+        ...responsavel.toJSON(),
+        createdAt: formatarDataParaResposta(responsavel.createdAt),
+        updatedAt: formatarDataParaResposta(responsavel.updatedAt),
+      };
+      res.status(200).json(responsavelFormatado);
     } else {
       res.status(400).json({ mensagem: "Responsável inexistente" });
     }

@@ -1,6 +1,7 @@
 const database = require("../models");
 const { Op } = require("sequelize");
 const jwt = require('jsonwebtoken');
+const { format } = require('date-fns');
 
 // Função para converter data de dd/mm/yyyy para yyyy-mm-dd
 const formatarData = (date) => {
@@ -15,6 +16,10 @@ const extrairToken = (req) => {
     return authHeader.split(' ')[1]; // Retorna apenas o token, sem o prefixo 'Bearer '
   }
   return null; // Retorna null se não houver token no cabeçalho
+};
+
+const formatarDataParaResposta = (data) => {
+  return format(new Date(data), 'dd/MM/yyyy');
 };
 
 async function findAll(req, res) {
@@ -36,7 +41,15 @@ async function findAll(req, res) {
         },
       },
     });
-    res.status(200).json(pacientesArray);
+
+    const pacientesFormatados = pacientesArray.map(paciente => ({
+      ...paciente.toJSON(),
+      dataNascimento: formatarDataParaResposta(paciente.dataNascimento),
+      createdAt: formatarDataParaResposta(paciente.createdAt),
+      updatedAt: formatarDataParaResposta(paciente.updatedAt),
+    }));
+
+    res.status(200).json(pacientesFormatados);
   } catch (err) {
     res.status(500).json({ mensagem: "Erro ao buscar pacientes", erro: err.message });
   }
@@ -64,7 +77,15 @@ async function findByName(req, res) {
         nome: req.params.nome,
       },
     });
-    res.status(200).json(paciente);
+
+    const pacienteFormatado = paciente.map(p => ({
+      ...p.toJSON(),
+      dataNascimento: formatarDataParaResposta(p.dataNascimento),
+      createdAt: formatarDataParaResposta(p.createdAt),
+      updatedAt: formatarDataParaResposta(p.updatedAt),
+    }));
+
+    res.status(200).json(pacienteFormatado);
   } catch (err) {
     res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
   }
@@ -81,7 +102,15 @@ async function findByPk(req, res) {
     const payload = jwt.verify(token, process.env.PG_SECRET);
 
     const paciente = await database.pacientes.findByPk(req.params.id);
-    res.status(200).json(paciente);
+
+    const pacienteFormatado = {
+      ...paciente.toJSON(),
+      dataNascimento: formatarDataParaResposta(paciente.dataNascimento),
+      createdAt: formatarDataParaResposta(paciente.createdAt),
+      updatedAt: formatarDataParaResposta(paciente.updatedAt),
+    };
+
+    res.status(200).json(pacienteFormatado);
   } catch (err) {
     res.status(500).json({ mensagem: "Erro ao buscar paciente", erro: err.message });
   }
