@@ -1,128 +1,34 @@
 require('dotenv').config();
 const database = require('../models');
-const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-/**
- * @swagger
- * tags:
- *   name: Usuario
- *   description: Endpoints para gerenciar usuários.
- */
+const revokedTokens = [];
 
 /**
- * @swagger
- * /usuarios:
- *   post:
- *     summary: Cria um novo usuário.
- *     tags: [Usuario]
- *     description: Endpoint para criar um novo usuário.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nome:
- *                 type: string
- *               sobrenome:
- *                 type: string
- *               email:
- *                 type: string
- *               senha:
- *                 type: string
- *             example:
- *               nome: Fulano
- *               sobrenome: de Tal
- *               email: fulano@example.com
- *               senha: 123456
- *     responses:
- *       200:
- *         description: Objeto usuário criado.
- *       500:
- *         description: Erro ao criar usuário.
+ * Cria um novo usuário.
  */
 async function create(req, res) {
     try {
-        let verificacao = await database.usuarios.findAll({
-            where: {
-                email: req.body.email
-            }
-        });
-
-        if(verificacao.length === 0) {
-            try {
-                const senha = bcrypt.hashSync(req.body.senha, 8);
-    
-                const usuario = await database.usuarios.create({
-                    nome: req.body.nome,
-                    sobrenome: req.body.sobrenome,
-                    email: req.body.email,
-                    senha: senha
-                });
-                
-                res.status(200).json(usuario);
-            } catch(err) {
-                res.status(500).json({mensagem:' Erro ao criar usuario', erro: err.message});
-            }   
+        const verificacao = await database.usuarios.findAll({ where: { email: req.body.email } });
+        if (verificacao.length === 0) {
+            const senha = bcrypt.hashSync(req.body.senha, 8);
+            const usuario = await database.usuarios.create({ ...req.body, senha });
+            res.status(200).json(usuario);
         } else {
-            res.status(500).json({mensagem:' Usuário existente'});
+            res.status(500).json({ mensagem: 'Usuário existente' });
         }
     } catch (err) {
-        res.status(500).json({mensagem:' Erro ao buscar usuario', erro: err.message});
+        res.status(500).json({ mensagem: 'Erro ao buscar usuario', erro: err.message });
     }
 }
 
 /**
- * @swagger
- * /usuarios/login:
- *   post:
- *     summary: Realiza o login de um usuário.
- *     tags: [Usuario]
- *     description: Endpoint para fazer login de usuário.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               senha:
- *                 type: string
- *             example:
- *               email: fulano@example.com
- *               senha: 123456
- *     responses:
- *       200:
- *         description: Login realizado com sucesso.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 mensagem:
- *                   type: string
- *                   example: Login feito com sucesso
- *                 token:
- *                   type: string
- *                   example: "jwt.token.aqui"
- *       401:
- *         description: Usuário ou senha incorretos.
- *       500:
- *         description: Erro ao logar com usuário.
+ * Realiza o login de um usuário.
  */
 async function login(req, res) {
     try {
-        const usuario = await database.usuarios.findOne({
-            where: {
-                email: req.body.email
-            }
-        });
-
+        const usuario = await database.usuarios.findOne({ where: { email: req.body.email } });
         if (usuario && bcrypt.compareSync(req.body.senha, usuario.senha)) {
             const token = jwt.sign({ id: usuario.id }, process.env.PG_SECRET, { expiresIn: '1h' });
             res.status(200).json({ mensagem: 'Login feito com sucesso', token });
@@ -135,22 +41,27 @@ async function login(req, res) {
 }
 
 /**
- * @swagger
- * /usuarios/logout:
- *   post:
- *     summary: Realiza o logout de um usuário.
- *     tags: [Usuario]
- *     description: Endpoint para fazer logout de usuário.
- *     responses:
- *       200:
- *         description: Logout realizado com sucesso.
+ * Realiza o logout de um usuário.
  */
 async function logout(req, res) {
-    res.end();
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(400).json({ mensagem: 'Token não fornecido' });
+    }
+
+    const [bearer, token] = authHeader.split(' ');
+
+    if (bearer !== 'Bearer' || !token) {
+        return res.status(400).json({ mensagem: 'Token inválido' });
+    }
+
+    revokedTokens.push(token);
+    res.status(200).json({ mensagem: 'Logout realizado com sucesso' });
 }
 
 module.exports = {
     create,
     login,
-    logout
-}
+    logout,
+    revokedTokens
+};

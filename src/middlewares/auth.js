@@ -1,6 +1,7 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const database = require('../models');
+const { revokedTokens } = require('../controller/usuariosController');
 
 async function eAdmin(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -10,6 +11,14 @@ async function eAdmin(req, res, next) {
     }
 
     const [bearer, token] = authHeader.split(' ');
+
+    if (bearer !== 'Bearer' || !token) {
+        return res.status(401).json({ mensagem: 'Token inválido' });
+    }
+
+    if (revokedTokens.includes(token)) {
+        return res.status(401).json({ mensagem: 'Token revogado' });
+    }
 
     try {
         const payload = jwt.verify(token, process.env.PG_SECRET);
@@ -28,4 +37,4 @@ async function eAdmin(req, res, next) {
 
 module.exports = {
     eAdmin
-}
+};
