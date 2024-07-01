@@ -9,14 +9,14 @@
   "test": {
     "username": "aluno",
     "password": "1234",
-    "database": "lash",
+    "database": "Lash",
     "host": "127.0.0.1",
     "dialect": "postgresql"
   },
   "production": {
     "username": "postgres",
     "password": "admin",
-    "database": "lash",
+    "database": "Lash",
     "host": "127.0.0.1",
     "dialect": "postgresql"
   }
